@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Cerdas - Analisis & Prediksi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <h2 class="mb-4 text-center fw-bold">Sistem Prediksi ML & Fuzzy Logic</h2>
+    <div class="row g-4">
+        <div class="col-md-5">
+            <div class="card p-3 shadow-sm">
+                <h5>Input Parameter</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label>Jam Belajar per Hari</label>
+                        <input type="number" step="0.1" name="jam_belajar" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label>Jam Tidur per Hari</label>
+                        <input type="number" step="0.1" name="jam_tidur" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Jumlah Tugas Minggu Ini</label>
+                        <input type="number" step="1" name="tugas_mingguan" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Analisis Sekarang</button>
+                </form>
+
+                {% if hasil_ml %}
+                <div class="alert alert-success mt-3 mb-0">
+                    <strong>Prediksi ML:</strong> {{ hasil_ml }}<br>
+                    <strong>Indeks Beban Fuzzy:</strong> {{ skor_fuzzy }} / 100
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card p-3 shadow-sm">
+                <h5>Visualisasi Matplotlib & Penjelasan AI</h5>
+                <img src="data:image/png;base64,{{ grafik }}" class="img-fluid rounded mb-3" alt="Grafik">
+                <div class="p-3 bg-white border rounded">
+                    <strong>Analisis AI (Groq):</strong>
+                    <p class="mb-0 mt-1">{{ penjelasan_ai }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-3 shadow-sm mt-4">
+        <h5>Riwayat Tersimpan di Database</h5>
+        <table class="table table-sm table-striped mt-2">
+            <thead>
+                <tr>
+                    <th>Belajar</th><th>Tidur</th><th>Tugas</th><th>Prediksi ML</th><th>Skor Fuzzy</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in riwayat %}
+                <tr>
+                    <td>{{ item.jam_belajar }}</td>
+                    <td>{{ item.jam_tidur }}</td>
+                    <td>{{ item.tugas_mingguan }}</td>
+                    <td>{{ item.hasil_ml }}</td>
+                    <td>{{ item.skor_fuzzy }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
