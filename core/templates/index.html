@@ -2,75 +2,295 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Cerdas - Analisis & Prediksi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Prediksi ML & Fuzzy Logic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 45%, #fdf2f8 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-4">
-    <h2 class="mb-4 text-center fw-bold">Sistem Prediksi ML & Fuzzy Logic</h2>
-    <div class="row g-4">
-        <div class="col-md-5">
-            <div class="card p-3 shadow-sm">
-                <h5>Input Parameter</h5>
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="mb-2">
-                        <label>Jam Belajar per Hari</label>
-                        <input type="number" step="0.1" name="jam_belajar" class="form-control" required>
-                    </div>
-                    <div class="mb-2">
-                        <label>Jam Tidur per Hari</label>
-                        <input type="number" step="0.1" name="jam_tidur" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Jumlah Tugas Minggu Ini</label>
-                        <input type="number" step="1" name="tugas_mingguan" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Analisis Sekarang</button>
-                </form>
+<body class="min-h-screen text-slate-800 relative overflow-x-hidden pb-12">
 
-                {% if hasil_ml %}
-                <div class="alert alert-success mt-3 mb-0">
-                    <strong>Prediksi ML:</strong> {{ hasil_ml }}<br>
-                    <strong>Indeks Beban Fuzzy:</strong> {{ skor_fuzzy }} / 100
+    <div class="fixed -top-24 -left-24 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+    <div class="fixed top-32 -right-24 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+    <div class="fixed -bottom-24 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-8 relative z-10">
+
+        <!-- Hero Header -->
+        <div class="rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-7 sm:p-9 text-white shadow-xl shadow-indigo-200 mb-8 relative overflow-hidden">
+            <div class="absolute right-6 top-6 opacity-15 text-8xl animate-float hidden sm:block">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold tracking-wide uppercase mb-3">
+                <span class="w-2 h-2 rounded-full bg-emerald-300 animate-ping"></span>
+                AI & Fuzzy Engine Aktif
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                Sistem Prediksi ML & Fuzzy Logic
+            </h1>
+            <p class="mt-2 text-indigo-100 text-sm sm:text-base max-w-2xl">
+                Analisis produktivitas dan beban akademik secara cerdas menggunakan kombinasi Machine Learning, Logika Fuzzy, Visualisasi Data, dan Groq AI.
+            </p>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+
+            <!-- Kolom Kiri: Form Input -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-7 shadow-xl shadow-slate-200/70">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-sliders text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Input Parameter</h2>
+                        <p class="text-xs text-slate-500">Geser slider atau ketik angka langsung</p>
+                    </div>
+                </div>
+
+                <form method="POST" id="analisisForm" class="space-y-5">
+                    {% csrf_token %}
+
+                    <!-- Input 1: Jam Belajar -->
+                    <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 transition hover:border-indigo-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="jam_belajar" class="text-sm font-bold text-indigo-950 flex items-center gap-2">
+                                <i class="fa-solid fa-book-open text-indigo-600"></i>
+                                Jam Belajar per Hari
+                            </label>
+                            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white" id="badge_belajar">5 jam</span>
+                        </div>
+                        <input type="number" step="0.1" min="0" max="24" name="jam_belajar" id="jam_belajar"
+                               value="{{ request.POST.jam_belajar|default:'5' }}" required
+                               class="w-full px-4 py-2.5 rounded-xl bg-white border border-indigo-200 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="range" min="0" max="16" step="0.5" value="{{ request.POST.jam_belajar|default:'5' }}" id="range_belajar"
+                               class="w-full mt-3 accent-indigo-600 cursor-pointer">
+                    </div>
+
+                    <!-- Input 2: Jam Tidur -->
+                    <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 transition hover:border-emerald-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="jam_tidur" class="text-sm font-bold text-emerald-950 flex items-center gap-2">
+                                <i class="fa-solid fa-bed text-emerald-600"></i>
+                                Jam Tidur per Hari
+                            </label>
+                            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white" id="badge_tidur">7 jam</span>
+                        </div>
+                        <input type="number" step="0.1" min="0" max="24" name="jam_tidur" id="jam_tidur"
+                               value="{{ request.POST.jam_tidur|default:'7' }}" required
+                               class="w-full px-4 py-2.5 rounded-xl bg-white border border-emerald-200 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <input type="range" min="0" max="14" step="0.5" value="{{ request.POST.jam_tidur|default:'7' }}" id="range_tidur"
+                               class="w-full mt-3 accent-emerald-600 cursor-pointer">
+                    </div>
+
+                    <!-- Input 3: Jumlah Tugas -->
+                    <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-100 transition hover:border-amber-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="tugas_mingguan" class="text-sm font-bold text-amber-950 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-amber-600"></i>
+                                Jumlah Tugas Minggu Ini
+                            </label>
+                            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500 text-white" id="badge_tugas">4 tugas</span>
+                        </div>
+                        <input type="number" step="1" min="0" max="50" name="tugas_mingguan" id="tugas_mingguan"
+                               value="{{ request.POST.tugas_mingguan|default:'4' }}" required
+                               class="w-full px-4 py-2.5 rounded-xl bg-white border border-amber-200 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <input type="range" min="0" max="20" step="1" value="{{ request.POST.tugas_mingguan|default:'4' }}" id="range_tugas"
+                               class="w-full mt-3 accent-amber-500 cursor-pointer">
+                    </div>
+
+                    <button type="submit" id="submitBtn"
+                            class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white font-bold text-base shadow-lg shadow-indigo-300/60 transform transition hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2.5 cursor-pointer">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span id="btnText">Analisis Sekarang</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Kolom Kanan: Visualisasi & Hasil AI -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Kartu Ringkasan Hasil ML & Fuzzy -->
+                {% with ml_res=hasil_ml|default:prediksi_ml|default:prediksi|default:hasil %}
+                {% with fz_res=hasil_fuzzy|default:skor_fuzzy|default:fuzzy|default:nilai_fuzzy %}
+                {% if ml_res or fz_res %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% if ml_res %}
+                    <div class="rounded-3xl p-5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full">Prediksi ML</span>
+                            <i class="fa-solid fa-microchip text-xl opacity-80"></i>
+                        </div>
+                        <p class="mt-3 text-2xl font-extrabold">{{ ml_res }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if fz_res %}
+                    <div class="rounded-3xl p-5 bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-200">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full">Evaluasi Fuzzy</span>
+                            <i class="fa-solid fa-chart-pie text-xl opacity-80"></i>
+                        </div>
+                        <p class="mt-3 text-2xl font-extrabold">{{ fz_res }}</p>
+                    </div>
+                    {% endif %}
                 </div>
                 {% endif %}
-            </div>
-        </div>
+                {% endwith %}
+                {% endwith %}
 
-        <div class="col-md-7">
-            <div class="card p-3 shadow-sm">
-                <h5>Visualisasi Matplotlib & Penjelasan AI</h5>
-                <img src="data:image/png;base64,{{ grafik }}" class="img-fluid rounded mb-3" alt="Grafik">
-                <div class="p-3 bg-white border rounded">
-                    <strong>Analisis AI (Groq):</strong>
-                    <p class="mb-0 mt-1">{{ penjelasan_ai }}</p>
+                <!-- Kartu Grafik Matplotlib -->
+                <div class="glass-card rounded-3xl p-6 sm:p-7 shadow-xl shadow-slate-200/70">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center shadow-md">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Visualisasi Data Analisis</h2>
+                                <p class="text-xs text-slate-500">Grafik perbandingan parameter input</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">Matplotlib</span>
+                    </div>
+
+                    {% with img_data=grafik|default:chart|default:plot_url|default:gambar|default:image %}
+                    {% if img_data %}
+                    <div class="rounded-2xl bg-white p-3 border border-slate-100 shadow-inner">
+                        <img id="chartImg" src="{{ img_data }}" data-raw="{{ img_data }}" alt="Grafik Analisis" class="w-full h-auto rounded-xl mx-auto">
+                    </div>
+                    {% else %}
+                    <div class="rounded-2xl border-2 border-dashed border-indigo-200 bg-indigo-50/40 p-10 text-center">
+                        <i class="fa-solid fa-chart-simple text-4xl text-indigo-400 mb-3"></i>
+                        <p class="text-sm font-semibold text-slate-600">Masukkan parameter di sebelah kiri lalu klik <span class="text-indigo-600">Analisis Sekarang</span> untuk menampilkan grafik.</p>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
                 </div>
+
+                <!-- Kartu Penjelasan Groq AI -->
+                {% with ai_text=penjelasan_ai|default:ai_response|default:penjelasan|default:hasil_ai|default:rekomendasi %}
+                {% if ai_text %}
+                <div class="rounded-3xl p-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-xl shadow-purple-200/60">
+                    <div class="bg-white rounded-[22px] p-6 sm:p-7">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center shadow-md">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Insight & Rekomendasi Groq AI</h2>
+                                <p class="text-xs text-purple-600 font-medium">Dihasilkan otomatis berdasarkan hasil prediksi</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-slate-700 text-sm sm:text-base leading-relaxed">
+                            {{ ai_text|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endwith %}
+
             </div>
         </div>
+
+        <!-- Tabel Riwayat (Otomatis muncul jika variabel riwayat dikirim dari views.py) -->
+        {% with history_list=riwayat|default:riwayat_analisis|default:history %}
+        {% if history_list %}
+        <div class="mt-8 glass-card rounded-3xl p-6 sm:p-7 shadow-xl shadow-slate-200/70">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <h2 class="text-lg font-bold text-slate-900">Riwayat Analisis Terakhir</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-slate-500 uppercase text-xs">
+                            <th class="py-3 px-4">Belajar</th>
+                            <th class="py-3 px-4">Tidur</th>
+                            <th class="py-3 px-4">Tugas</th>
+                            <th class="py-3 px-4">Hasil Prediksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for item in history_list %}
+                        <tr class="hover:bg-indigo-50/40 transition">
+                            <td class="py-3 px-4 font-semibold">{{ item.jam_belajar }} jam</td>
+                            <td class="py-3 px-4 font-semibold">{{ item.jam_tidur }} jam</td>
+                            <td class="py-3 px-4 font-semibold">{{ item.tugas_mingguan }} tugas</td>
+                            <td class="py-3 px-4">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
+                                    {{ item.hasil_prediksi|default:item.prediksi|default:"Selesai" }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
     </div>
 
-    <div class="card p-3 shadow-sm mt-4">
-        <h5>Riwayat Tersimpan di Database</h5>
-        <table class="table table-sm table-striped mt-2">
-            <thead>
-                <tr>
-                    <th>Belajar</th><th>Tidur</th><th>Tugas</th><th>Prediksi ML</th><th>Skor Fuzzy</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in riwayat %}
-                <tr>
-                    <td>{{ item.jam_belajar }}</td>
-                    <td>{{ item.jam_tidur }}</td>
-                    <td>{{ item.tugas_mingguan }}</td>
-                    <td>{{ item.hasil_ml }}</td>
-                    <td>{{ item.skor_fuzzy }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+    <script>
+        function syncSlider(inputId, rangeId, badgeId, unit) {
+            const input = document.getElementById(inputId);
+            const range = document.getElementById(rangeId);
+            const badge = document.getElementById(badgeId);
+            if (!input || !range || !badge) return;
+
+            const updateBadge = (val) => { badge.textContent = (val || 0) + ' ' + unit; };
+            updateBadge(input.value);
+
+            range.addEventListener('input', () => {
+                input.value = range.value;
+                updateBadge(range.value);
+            });
+            input.addEventListener('input', () => {
+                range.value = input.value;
+                updateBadge(input.value);
+            });
+        }
+
+        syncSlider('jam_belajar', 'range_belajar', 'badge_belajar', 'jam');
+        syncSlider('jam_tidur', 'range_tidur', 'badge_tidur', 'jam');
+        syncSlider('tugas_mingguan', 'range_tugas', 'badge_tugas', 'tugas');
+
+        const chartImg = document.getElementById('chartImg');
+        if (chartImg && chartImg.dataset.raw) {
+            const raw = chartImg.dataset.raw.trim();
+            if (!raw.startsWith('data:') && !raw.startsWith('http')) {
+                chartImg.src = 'data:image/png;base64,' + raw;
+            }
+        }
+
+        document.getElementById('analisisForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            const txt = document.getElementById('btnText');
+            btn.classList.add('opacity-80', 'cursor-wait');
+            txt.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Sedang Menganalisis...';
+        });
+    </script>
 </body>
 </html>

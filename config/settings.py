@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-7759%kt3^7zfwv&cduo!)_f!$_3j8vp#02eh%5qmcuh%mzd0@s
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://*.hf.space']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
